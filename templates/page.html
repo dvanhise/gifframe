@@ -1,0 +1,78 @@
+{% extends "main_base.html" %}
+{% load staticfiles %}
+
+{% block scripts %}
+<script type="text/javascript" src="{% static 'js/frames.controller.js' %}"></script>
+{% endblock %}
+
+{% block title %}Frames{% endblock %}
+
+{% block styles %}
+<style>
+    .linky {
+        cursor: pointer;
+    }
+
+    .center {
+        margin: auto;
+    }
+
+    .glyphicon {
+        font-size: 2em;
+        margin: 5px;
+    }
+
+    .nav-bar {
+        margin: 5px auto;
+        width: 200px;
+        height: 44px;
+        border: 2px solid #AAAAAA;
+    }
+
+    .content {
+        border: 3px dashed #AAAAAA;
+        margin: auto;
+        padding: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div ng-app="frameApp" ng-controller="frameCtrl">
+
+    <div class="content" style="width:1500px">
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% else %}
+            {% for frame in frames %}
+                <input type="hidden" value="{% static frame %}" id="frame{{ forloop.counter0 }}">
+            {% endfor %}
+            <input type="hidden" value="{{ height }}" id="height-value">
+            <input type="hidden" value="{{ width }}" id="width-value">
+            <input type="hidden" value="{{ source }}" id="source-value">
+            <input type="hidden" value="{{ externalId }}" id="external-id-value">
+            <img class="center" ng-if="frames.length" ng-src="{[{ frames[currentFrame] }]}">
+            <div class="nav-bar">
+                <span class="glyphicon glyphicon-fast-backward linky pull-left"
+                      ng-show="currentFrame > 0"
+                      ng-click="currentFrame = 0"></span>
+                <span class="glyphicon glyphicon-backward linky pull-left"
+                      ng-show="currentFrame > 0"
+                      ng-click="currentFrame = currentFrame - 1"></span>
+                <span class="glyphicon glyphicon-fast-forward linky pull-right"
+                      ng-show="currentFrame < frames.length - 1"
+                      ng-click="currentFrame = frames.length - 1"></span>
+                <span class="glyphicon glyphicon-forward linky pull-right"
+                      ng-show="currentFrame < frames.length - 1"
+                      ng-click="currentFrame = currentFrame + 1"></span>
+            </div>
+            <div class="center text-center" style="width:200px">
+                <a ng-href="{{ url }}">Original gif</a>
+            </div>
+        {% endif %}  <!-- errors -->
+    </div>
+    <div>
+        <a class="center" style="width:300px" ng-href="/a/reset/{[{ externalId }]}/">Click here if any or all of the frames are not loading</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" type='text/css' href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    {% load staticfiles %}
+    <link rel="stylesheet" type='text/css' href="{% static 'css/main-styles.css' %}">
+
+    {% block styles %}{% endblock %}
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.10.1/lodash.min.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+    {% block scripts %}{% endblock %}
+
+    <title>{% block title %}Frame by Frame{% endblock %}</title>
+</head>
+
+<body style="overflow-x: hidden;background-color:#EEEEEE">
+    <div class="row">
+        <div class="col-md-12" style="margin:10px">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+</body>
+</html>

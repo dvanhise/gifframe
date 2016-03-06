@@ -1,0 +1,11 @@
+div.content-box {
+    padding: 5px;
+    margin: 5px;
+    display: block;
+    border: 3px solid brown;
+    overflow: hidden;
+}
+
+li {
+    list-style-type: none;
+}

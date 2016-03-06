@@ -1,0 +1,30 @@
+{% extends "main_base.html" %}
+{% load staticfiles %}
+
+{% block scripts %}
+{% endblock %}
+
+{% block title %}Home{% endblock %}
+
+{% block styles %}
+<style>
+    .center {
+        margin: auto;
+    }
+
+    .content {
+        border: 3px dashed #AAAAAA;
+        margin: auto;
+        padding: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div>
+    <div class="content" style="width:1500px">
+        <label class="center" style="width:500px;text-align:center">Enter a direct link to a gif:</label>
+        <input class="center" style="width:500px">
+    </div>
+</div>
+{% endblock %}

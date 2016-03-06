@@ -1,0 +1,4 @@
+Pillow
+boto
+base58
+django
