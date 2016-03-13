@@ -1,5 +1,4 @@
 import urllib.request
-import re
 import uuid
 from PIL import Image
 from io import BytesIO
@@ -9,13 +8,15 @@ from urllib.parse import urlparse
 from django.shortcuts import render, redirect
 from django.views.generic import View
 from django.core.exceptions import ObjectDoesNotExist
-import boto
 from boto.s3.key import Key
+from boto.s3.connection import S3Connection, OrdinaryCallingFormat
 
-from .settings import BASE_DIR, MAIN_BUCKET
+from .settings import BASE_DIR, MAIN_BUCKET, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
 from .models import Frame, Cachable
 
 # test gif: https://upload.wikimedia.org/wikipedia/commons/8/83/Utah_Territory_evolution_animation_-_August_2011.gif
+# http://i.imgur.com/YTMYqQP.gif
+# http://i.imgur.com/foxwpvR.gif
 MAX_HEIGHT = 800
 MAX_WIDTH = 1000
 
@@ -33,21 +34,20 @@ class IdFrameView(View):
 
 class UrlFrameView(View):
     def get(self, request, gifUrl):
-        # Trim down the url, remove http, www, and trailing slash
         url = urlparse(gifUrl)
         print('<<url parse>> ' + str(url))
-        gifUrl = re.sub(r'^(https?://)?(www\.)?', '', gifUrl, re.I)
-        gifUrl = re.sub(r'/$', '', gifUrl, re.I)
 
         if not url.path.endswith(('.gif', '.gifv')):
             return renderError(request, 'Link did not appear to be a gif')
 
-        if not url.netloc:
-            return renderError(request, 'Couldn\'t parse link in a meaningful way')
+        # gifUrl = '//{}{}'.format(url.netloc, url.path)
+        # gifUrl = re.sub(r'/$', '', gifUrl, re.I)
 
-        # TODO: limit the sites that can be used
-        # SITES = ['imgur.com', 'wikimedia.org', 'gfycat.com', 'photobucket.com']
+        # FIXME: The vulnerability of e.g. ___imgur.com being matched
+        SITES = ['imgur.com', 'wikimedia.org', 'gfycat.com', 'photobucket.com']
         # re.match(r'^([^\s/]+\.)?a', url.netloc)
+        if not len([domain for domain in SITES if domain in gifUrl]):
+            return renderError(request, 'Link is not from a supported site')
 
         # Check cache for url
         try:
@@ -111,6 +111,7 @@ def checkCache(gifId):
 # Returns generated context
 def parseGif(location):
     # Get the gif and open with pillow
+    print('<<log>> Image location ' + str(location))
     try:
         im = Image.open(
             BytesIO(urllib.request.urlopen(location).read())
@@ -118,9 +119,10 @@ def parseGif(location):
     except OSError:
         return {}
 
+    print('<<log>> image ' + str(im))
     # Validate file
     if im.format.lower() != 'gif':
-        return {}
+        return None
 
     height, width = im.size
     # Rezise image if necessary
@@ -130,29 +132,34 @@ def parseGif(location):
             ratio = MAX_WIDTH/width
         width = int(width*ratio)
         height = int(height*ratio)
-        im.thumbhail((height, width), Image.ANTIALIAS)
+        im.thumbnail((height, width), Image.ANTIALIAS)
 
     cache = Cachable(link=location, height=height, width=width)
     cache.save()
 
-    conn = boto.connect_s3()
-    bucket = conn.lookup(MAIN_BUCKET)
-
+    conn = S3Connection(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, calling_format=OrdinaryCallingFormat())
+    bucket = conn.get_bucket(MAIN_BUCKET)
     k = Key(bucket)
+    if not k:
+        print('<<error>> Couldn\'t connect to bucket ' + MAIN_BUCKET)
+        return None
 
     # Iterate through gif and save frames
     frames = []
     count = 0
     try:
+        print('<<log>> I\'m trying')
         while 1:
             count += 1
             if count >= 200:
                 break
 
-            frameKey = str(uuid.uuid4()) + '.jpg'
+            print('<<log>> frame #' + str(count))
+            frameKey = str(uuid.uuid4()) + '.png'
             imgPath = path.join(BASE_DIR, 'static', 'images', frameKey)
 
-            im.save(imgPath, 'jpg')
+            im.save(imgPath, 'png')
+            print('<<log>> Saving to ' + str(imgPath))
             k.set_contents_from_filename(imgPath)
             # TODO: delete local file or find a way to not have to save it locally
             frames.append(path.join('images', frameKey))
@@ -160,6 +167,9 @@ def parseGif(location):
             im.seek(im.tell()+1)
     except EOFError:
         pass
+
+    if not frames:
+        print('<<log>> No frames were saved')
 
     return {
         'source': location,

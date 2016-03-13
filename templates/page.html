@@ -51,6 +51,7 @@
             <input type="hidden" value="{{ width }}" id="width-value">
             <input type="hidden" value="{{ source }}" id="source-value">
             <input type="hidden" value="{{ externalId }}" id="external-id-value">
+
             <img class="center" ng-if="frames.length" ng-src="{[{ frames[currentFrame] }]}">
             <div class="nav-bar">
                 <span class="glyphicon glyphicon-fast-backward linky pull-left"
@@ -72,7 +73,7 @@
         {% endif %}  <!-- errors -->
     </div>
     <div>
-        <a class="center" style="width:300px" ng-href="/a/reset/{[{ externalId }]}/">Click here if any or all of the frames are not loading</a>
+        <a class="center" style="width:300px" ng-href="/a/reset/{{ externalId }}/">Click here if any or all of the frames are not loading</a>
     </div>
 </div>
 {% endblock %}

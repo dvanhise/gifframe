@@ -1,13 +1,14 @@
 from django.db import models
 from base58 import b58encode
 
-BASE = 1000
+BASE = 345
 
 
 class Cachable(models.Model):
 
+    # TODO: Create customer lookup for determining if two urls are equivalent
     link = models.URLField(unique=True)
-    externalId = models.CharField(max_length=100, blank=True)
+    externalId = models.CharField(max_length=100, unique=True, blank=True)
     height = models.IntegerField()
     width = models.IntegerField()
     views = models.IntegerField(default=1)

@@ -8,6 +8,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'h4azs6ck(n$7shm@b_uq60x*k+8vuhl&^eu3u48@7ez_y+&9pm'
 
+AWS_ACCESS_KEY_ID = 'AKIAIG7ZDOVVCIAGUSGA'
+AWS_SECRET_ACCESS_KEY = '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'
+
 # These are stored as environment variables
 # AWS_ACCESS_KEY_ID = 'AKIAIG7ZDOVVCIAGUSGA'
 # AWS_SECRET_ACCESS_KEY = '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'
@@ -47,7 +50,7 @@ ROOT_URLCONF = 'gifframe.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['templates'],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
