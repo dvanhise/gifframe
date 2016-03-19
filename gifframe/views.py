@@ -17,6 +17,8 @@ from .models import Frame, Cachable
 # test gif: https://upload.wikimedia.org/wikipedia/commons/8/83/Utah_Territory_evolution_animation_-_August_2011.gif
 # http://i.imgur.com/YTMYqQP.gif
 # http://i.imgur.com/foxwpvR.gif
+
+# get access to this http://images.gifframe.test.s3.amazonaws.com/aa4f1a0c-082b-4b4f-9cb4-784a344a0f54.png
 MAX_HEIGHT = 800
 MAX_WIDTH = 1000
 
@@ -29,6 +31,7 @@ class IdFrameView(View):
         if not context:
             return renderError(request, 'The id ({}) was not found'.format(gifId))
 
+        context['imageRoot'] = 'http://{}.s3.amazonaws.com/'.format(MAIN_BUCKET)
         return render(request, 'page.html', context)
 
 
@@ -58,6 +61,7 @@ class UrlFrameView(View):
 
         if not context:
             return renderError(request, 'Unable to read file as a gif')
+        context['imageRoot'] = 'http://{}.s3.amazonaws.com/'.format(MAIN_BUCKET)
         return render(request, 'page.html', context)
 
 
@@ -71,6 +75,7 @@ class ResetFrameView(View):
 
         # TODO:  delete s3 links
         # delete cache
+        # keep same external id
         context = parseGif(gifId)
         return render(request, 'page.html', context)
 
@@ -97,7 +102,7 @@ def checkCache(gifId):
     frames = cache.frame_set.all().order_by('order').values_list('image', flat=True)
     return {
         'source': cache.link,
-        'frames': [path.join('images', f) for f in frames],
+        'frames': frames,
         'height': cache.height,
         'width': cache.width,
         'externalId': cache.externalId
@@ -124,7 +129,7 @@ def parseGif(location):
     if im.format.lower() != 'gif':
         return None
 
-    height, width = im.size
+    width, height = im.size
     # Rezise image if necessary
     if height > MAX_HEIGHT:
         ratio = MAX_HEIGHT/height
@@ -148,7 +153,6 @@ def parseGif(location):
     frames = []
     count = 0
     try:
-        print('<<log>> I\'m trying')
         while 1:
             count += 1
             if count >= 200:
@@ -160,9 +164,10 @@ def parseGif(location):
 
             im.save(imgPath, 'png')
             print('<<log>> Saving to ' + str(imgPath))
+            k.key = frameKey
             k.set_contents_from_filename(imgPath)
             # TODO: delete local file or find a way to not have to save it locally
-            frames.append(path.join('images', frameKey))
+            frames.append(frameKey)
             Frame(image=frameKey, order=len(frames), gif=cache).save()
             im.seek(im.tell()+1)
     except EOFError:

@@ -6,7 +6,7 @@ BASE = 345
 
 class Cachable(models.Model):
 
-    # TODO: Create customer lookup for determining if two urls are equivalent
+    # TODO: Create lookup for determining if two urls are equivalent
     link = models.URLField(unique=True)
     externalId = models.CharField(max_length=100, unique=True, blank=True)
     height = models.IntegerField()
@@ -40,4 +40,4 @@ class Frame(models.Model):
         unique_together = ('order', 'gif')
 
     def __str__(self):
-        return self.gif[50:] + ' - ' + self.order
+        return self.gif.link[50:] + ' - ' + str(self.order)
