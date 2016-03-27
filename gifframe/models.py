@@ -1,5 +1,6 @@
 from django.db import models
 from base58 import b58encode
+from .settings import MAIN_BUCKET, AWS_CONNECTION
 
 BASE = 345
 
@@ -17,8 +18,16 @@ class Cachable(models.Model):
         return self.link
 
     def delete(self, using=None):
-        self.frame_set.all().delete()
+        self.deleteFrames()
         super(Cachable, self).delete(using)
+
+    def deleteFrames(self):
+        frames = self.frame_set.all()
+        if frames.exists():
+            conn = AWS_CONNECTION
+            bucket = conn.get_bucket(MAIN_BUCKET, validate=False)
+            bucket.delete_keys(frames.values_list('image', flat=True))
+            frames.delete()
 
     def save(self, *args, **kwargs):
         updated = self.id

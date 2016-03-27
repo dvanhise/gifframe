@@ -9,16 +9,14 @@ from django.shortcuts import render, redirect
 from django.views.generic import View
 from django.core.exceptions import ObjectDoesNotExist
 from boto.s3.key import Key
-from boto.s3.connection import S3Connection, OrdinaryCallingFormat
 
-from .settings import BASE_DIR, MAIN_BUCKET, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
+from .settings import BASE_DIR, MAIN_BUCKET, AWS_CONNECTION
 from .models import Frame, Cachable
 
 # test gif: https://upload.wikimedia.org/wikipedia/commons/8/83/Utah_Territory_evolution_animation_-_August_2011.gif
 # http://i.imgur.com/YTMYqQP.gif
 # http://i.imgur.com/foxwpvR.gif
 
-# get access to this http://images.gifframe.test.s3.amazonaws.com/aa4f1a0c-082b-4b4f-9cb4-784a344a0f54.png
 MAX_HEIGHT = 800
 MAX_WIDTH = 1000
 
@@ -73,10 +71,10 @@ class ResetFrameView(View):
         except ObjectDoesNotExist:
             return renderError(request, 'The id ({}) was not found'.format(gifId))
 
-        # TODO:  delete s3 links
-        # delete cache
+        print('<<log>> Resetting cachable %s' % gifId)
+        cache.deleteFrames()
         # keep same external id
-        context = parseGif(gifId)
+        context = parseGif(cache.link, useCache=cache)
         return render(request, 'page.html', context)
 
 
@@ -114,7 +112,7 @@ def checkCache(gifId):
 # Generates frames and saves them to s3
 # Caches data in db
 # Returns generated context
-def parseGif(location):
+def parseGif(location, useCache=None):
     # Get the gif and open with pillow
     print('<<log>> Image location ' + str(location))
     try:
@@ -139,11 +137,14 @@ def parseGif(location):
         height = int(height*ratio)
         im.thumbnail((height, width), Image.ANTIALIAS)
 
-    cache = Cachable(link=location, height=height, width=width)
-    cache.save()
+    if not useCache:
+        cache = Cachable(link=location, height=height, width=width)
+        cache.save()
+    else:
+        cache = useCache
 
-    conn = S3Connection(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, calling_format=OrdinaryCallingFormat())
-    bucket = conn.get_bucket(MAIN_BUCKET)
+    conn = AWS_CONNECTION
+    bucket = conn.get_bucket(MAIN_BUCKET, validate=False)
     k = Key(bucket)
     if not k:
         print('<<error>> Couldn\'t connect to bucket ' + MAIN_BUCKET)

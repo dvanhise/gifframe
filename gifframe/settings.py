@@ -1,6 +1,8 @@
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+import requests
+from boto.s3.connection import S3Connection, OrdinaryCallingFormat
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -10,11 +12,12 @@ SECRET_KEY = 'h4azs6ck(n$7shm@b_uq60x*k+8vuhl&^eu3u48@7ez_y+&9pm'
 
 AWS_ACCESS_KEY_ID = 'AKIAIG7ZDOVVCIAGUSGA'
 AWS_SECRET_ACCESS_KEY = '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'
-
-# These are stored as environment variables
-# AWS_ACCESS_KEY_ID = 'AKIAIG7ZDOVVCIAGUSGA'
-# AWS_SECRET_ACCESS_KEY = '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'
 MAIN_BUCKET = 'images.gifframe.test'
+
+AWS_CONNECTION = S3Connection(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, calling_format=OrdinaryCallingFormat())
+
+if not AWS_CONNECTION:
+    raise requests.ConnectionError
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True

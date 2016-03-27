@@ -22,9 +22,7 @@ function frameController($scope) {
 
         $scope.source = angular.element('#source-value')[0].value;
         $scope.imageRoot = angular.element('#image-root-value')[0].value;
-        console.log($scope.imageRoot);
         $scope.externalId = angular.element('#external-id-value')[0].value;
-        console.log($scope.externalId);
         $scope.height = angular.element('#height-value')[0].value;
         $scope.width = angular.element('#width-value')[0].value;
     }

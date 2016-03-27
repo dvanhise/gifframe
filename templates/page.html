@@ -14,7 +14,9 @@
     }
 
     .center {
-        margin: auto;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
     }
 
     .glyphicon {
@@ -53,7 +55,7 @@
             <input type="hidden" value="{{ externalId }}" id="external-id-value">
             <input type="hidden" value="{{ imageRoot }}" id="image-root-value">
 
-            <img class="center" ng-style="{'width': width}" ng-if="frames.length" ng-src="{[{ ::imageRoot + frames[currentFrame] }]}">
+            <img class="center" ng-style="::{'width': width}" ng-if="::frames.length" ng-src="{[{ ::imageRoot + frames[currentFrame] }]}">
             <div class="nav-bar">
                 <span class="glyphicon glyphicon-fast-backward linky pull-left"
                       ng-show="currentFrame > 0"
@@ -69,12 +71,12 @@
                       ng-click="currentFrame = currentFrame + 1"></span>
             </div>
             <div class="center text-center" style="width:200px">
-                <a ng-href="{{ url }}">Original gif</a>
+                <a class="linky" ng-href="{{ url }}">Original gif</a>
             </div>
         {% endif %}
     </div>
     <div>
-        <a class="center" style="width:300px" ng-href="/a/reset/{{ externalId }}/">Click here if any or all of the frames are not loading</a>
+        <a class="center" style="width:350px" ng-href="/a/reset/{{ externalId }}/">Click here if any or all of the frames are not loading</a>
     </div>
 </div>
 {% endblock %}
