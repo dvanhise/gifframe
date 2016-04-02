@@ -2,3 +2,4 @@ Pillow
 boto
 base58
 django
+requests
