@@ -4,9 +4,10 @@ angular.module('frameApp', []).config(function($interpolateProvider) {
     $interpolateProvider.endSymbol('}]}');
 }).controller('frameCtrl', frameController);
 
-function frameController($scope) {
+function frameController($scope, $location) {
     $scope.frames = [];
-    $scope.currentFrame = 0;
+    console.log($location.$$path);
+    $scope.currentFrame = $location.$$path ? parseInt($location.$$path.replace(/[^0-9]/, '')) - 1 : 0;
 
     activate();
 
@@ -17,7 +18,14 @@ function frameController($scope) {
             if (!elem.length || counter >= 200) { break; }
 
             $scope.frames.push(elem[0].value);
+            console.log(elem[0].value);
             counter++;
+        }
+
+        if ($scope.currentFrame < 0) {
+            $scope.currentFrame = 0
+        } else if ($scope.currentFrame >= $scope.frames.length) {
+            $scope.currentFrame = $scope.frames.length - 1;
         }
 
         $scope.source = angular.element('#source-value')[0].value;

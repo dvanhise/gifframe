@@ -55,7 +55,7 @@
             <input type="hidden" value="{{ externalId }}" id="external-id-value">
             <input type="hidden" value="{{ imageRoot }}" id="image-root-value">
 
-            <img class="center" ng-style="::{'width': width}" ng-if="::frames.length" ng-src="{[{ ::imageRoot + frames[currentFrame] }]}">
+            <img class="center" ng-style="::{'width': width}" ng-if="::frames.length" ng-src="{[{ imageRoot + frames[currentFrame] }]}">
             <div class="nav-bar">
                 <span class="glyphicon glyphicon-fast-backward linky pull-left"
                       ng-show="currentFrame > 0"

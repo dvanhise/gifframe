@@ -2,6 +2,7 @@
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 import requests
+import re
 from boto.s3.connection import S3Connection, OrdinaryCallingFormat
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -24,6 +25,11 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+IGNORABLE_404_URLS = [
+    re.compile(r'^/apple-touch-icon.*\.png$'),
+    re.compile(r'^/favicon\.ico$'),
+    re.compile(r'^/robots\.txt$'),
+]
 
 # Application definition
 

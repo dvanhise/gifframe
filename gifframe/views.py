@@ -59,8 +59,7 @@ class UrlFrameView(View):
 
         if not context:
             return renderError(request, 'Unable to read file as a gif')
-        context['imageRoot'] = 'http://{}.s3.amazonaws.com/'.format(MAIN_BUCKET)
-        return render(request, 'page.html', context)
+        return redirect('idFrames', gifId=context['externalId'])
 
 
 class ResetFrameView(View):
@@ -74,8 +73,8 @@ class ResetFrameView(View):
         print('<<log>> Resetting cachable %s' % gifId)
         cache.deleteFrames()
         # keep same external id
-        context = parseGif(cache.link, useCache=cache)
-        return render(request, 'page.html', context)
+        parseGif(cache.link, useCache=cache)
+        return redirect('idFrames', gifId=cache.externalId)
 
 
 class HomeView(View):
