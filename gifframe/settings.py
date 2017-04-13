@@ -1,5 +1,4 @@
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 import requests
 import re
@@ -8,11 +7,10 @@ from boto.s3.connection import S3Connection, OrdinaryCallingFormat
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'h4azs6ck(n$7shm@b_uq60x*k+8vuhl&^eu3u48@7ez_y+&9pm'
+SECRET_KEY = os.environ.get('SECRET_KEY', '')
 
-AWS_ACCESS_KEY_ID = 'AKIAIG7ZDOVVCIAGUSGA'
-AWS_SECRET_ACCESS_KEY = '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'
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID', '')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY', '')
 MAIN_BUCKET = 'images.gifframe.test'
 
 AWS_CONNECTION = S3Connection(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, calling_format=OrdinaryCallingFormat())

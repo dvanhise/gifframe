@@ -5,7 +5,7 @@ branch-defaults:
 global:
   application_name: ebgiftest
   default_ec2_keyname: first
-  default_platform: python
+  default_platform: Python 3.4
   default_region: us-west-2
   profile: null
   sc: git
